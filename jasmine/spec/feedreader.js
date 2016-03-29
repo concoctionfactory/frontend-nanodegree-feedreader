@@ -14,6 +14,7 @@ $(function () {
 		it('url is not empty', function () {
 			allFeeds.forEach(function (item) {
 				expect(item.url).toBeDefined();
+				expect(item.url.length).not.toBe(0);
 			});
 		});
 
@@ -21,6 +22,7 @@ $(function () {
 		it('name is not empty', function () {
 			allFeeds.forEach(function (item) {
 				expect(item.name).toBeDefined();
+				expect(item.name.length).not.toBe(0);
 			});
 		});
 	});
@@ -31,17 +33,17 @@ $(function () {
 	describe('The menu', function () {
 		// tests that ensures the menu element is hidden
 		it('is hidden', function () {
-			expect($('body').hasClass('menu-hidden')).toBe(true);
+			expect($('body').hasClass('menu-hidden')).toBeTruthy();
 		});
 
 		// tests that the menu changes visibility when the menu icon is clicked.
 		it("changes visibility", function () {
 			var menuIcon = $('.menu-icon-link');
 			menuIcon.click();
-			expect($('body').hasClass('menu-hidden')).not.toBe(true);
+			expect($('body').hasClass('menu-hidden')).toBeFalsy();
 
 			menuIcon.click();
-			expect($('body').hasClass('menu-hidden')).toBe(true);
+			expect($('body').hasClass('menu-hidden')).toBeTruthy();
 		});
 	});
 
@@ -53,15 +55,12 @@ $(function () {
 			there is a single .entry element within the .feed container.
 		*/
 		beforeEach(function (done) {
-			loadFeed(0, function () {
-				done();
-			});
+			loadFeed(0, done);
 		});
 
-		it("has entry element", function (done) {
-			var container = $('.feed');
-			expect(container.length).toBeGreaterThan(0);
-			done();
+		it("has entry element", function () {
+			var entry = $('.entry-link');
+			expect(entry.length).toBeGreaterThan(0);
 		});
 	});
 
@@ -81,7 +80,7 @@ $(function () {
 			var feedTwoEntry;
 			loadFeed(1, function () {
 				feedTwoEntry = $('.feed .entry-link').first().attr('href');
-				expect(feedOneEntry).not.toMatch(feedTwoEntry);
+				expect(feedOneEntry).not.toBe(feedTwoEntry);
 				done();
 			});
 		});
@@ -96,23 +95,28 @@ $(function () {
 	tests that clicking the favorite button on entry will save link to favorite selection in feed-list
 	*/
 	describe("Favorite Selection", function(){
-		var feedEntry;
+		var feedEntry, feedEntryUrl;
 		beforeEach(function (done) {
 			loadFeed(0, function () {
-				feedEntry = $('.feed .entry-link').first().attr('href');
-				feedEntry.favorite();
+				feedEntry = $('.feed .entry-link').first();
+				feedEntryUrl = feedEntry.attr('href');
+				var favoriteBtn = feedEntry.find("favorite-btn"); // TODO: add favorite btn
+				favoriteBtn.click(); //posts to favorited entry to server
 				done();
 			});
 
 		});
 
-		it("actually saves to favorite selection", function (done) {
+		xit("actually saves to favorite selection", function (done) {
 
-			$(".feed-list .favorite-section").click();
-			var favoriteEntry;
+			$(".feed-list .favorite-section").click(); // will call loadFeed("favorite");
+			var favoriteEntryUrl;
+
+			// TODO: loadFeed function will check for "favorite" to be passed to it and upon being
+			// passed "favorite" it will get the favorited entries from the server and display them
 			loadFeed("favorite", function () {
-				favoriteEntry = $('.feed .entry-link').first().attr('href');
-				expect(feedEntry).toMatch(favoriteEntry);
+				favoriteEntryUrl = $('.feed .entry-link').first().attr('href');
+				expect(feedEntryUrl).toBe(favoriteEntryUrl);
 				done();
 			});
 		});
